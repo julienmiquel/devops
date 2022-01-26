@@ -4,7 +4,7 @@ variable "region" {
 
 
 variable "project" {  
-    default = "cloud-ops-sandbox-2234836724"
+    default = ""
 }
 
 variable "location" {
@@ -30,9 +30,7 @@ variable "deletion_protection" {
 }
 
 variable "gcs_tf_state" {
-  default = "tf_state_devops_hackathon"
-  #format("tf_state_%s", var.project)
-  
+  default = "tf_state_devops_hackathon"  
 }
 
 provider "google" {

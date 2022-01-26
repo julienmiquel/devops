@@ -1,16 +1,6 @@
-// Storage staging
-resource "google_storage_bucket" "staging" {
-  name                        = format("tf_state_%s", var.project)
-  location                    = var.location
-  force_destroy               = true
-  project                     = var.project
-  uniform_bucket_level_access = true
-  labels = {
-    "env" : var.env
-  }
-}
 
-data "terraform_remote_state" "foo" {
+
+data "terraform_remote_state" "remote_tf_states" {
   backend = "gcs"
   config = {
     bucket  = var.gcs_tf_state
