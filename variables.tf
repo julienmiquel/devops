@@ -20,11 +20,6 @@ variable "tag" {
   default = "devops_hackathon"
 }
 
-variable "service_account_name" {
-  default = "devops-sa-1"
-}
-
-
 variable "deletion_protection" {
   default = false
 }

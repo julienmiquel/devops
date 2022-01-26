@@ -1,23 +1,3 @@
-
-
-//Service Account (right to call doc AI)
-resource "google_service_account" "sa" {
-  account_id   = var.service_account_name
-  display_name = "A service account used by devops pipeline"
-  project      = var.project
-
-}
-
-resource "google_project_iam_member" "project" {
-  project = var.project
-  role    = "roles/editor"
-  member  = "serviceAccount:${google_service_account.sa.email}"
-
-}
-
-
-
-
 resource "google_container_cluster" "demo_cluster" {
   project  = var.project
   name     = "cluster-demo"
@@ -35,7 +15,6 @@ resource "google_container_cluster" "demo_cluster" {
   initial_node_count = 1
 
   node_config {
-#    service_account = google_service_account.sa.name
 
     labels = {
       env = var.env,
@@ -62,7 +41,6 @@ resource "google_container_node_pool" "linux_pool" {
       env = var.env,
       tag = var.tag
     } 
-#    service_account   = google_service_account.sa.name
   }
 
   upgrade_settings {
@@ -70,19 +48,3 @@ resource "google_container_node_pool" "linux_pool" {
           max_unavailable = 0 
   }
 }
-
-# # Node pool of Windows Server machines.
-# resource "google_container_node_pool" "windows_pool" {
-#   name               = "windows-pool"
-#   project            = google_container_cluster.demo_cluster.project
-#   cluster            = google_container_cluster.demo_cluster.name
-#   location           = google_container_cluster.demo_cluster.location
-
-#   node_config {
-#     machine_type = "e2-standard-4"
-#     image_type   = "WINDOWS_LTSC" # Or WINDOWS_SAC for new features.
-#   }
-
-#   # The Linux node pool must be created before the Windows Server node pool.
-#   depends_on = [google_container_node_pool.linux_pool]
-# }
