@@ -1,3 +1,18 @@
+//Service Account (right to call doc AI)
+resource "google_service_account" "sa" {
+  account_id   = var.service_account_name
+  display_name = "A service account used by devops pipeline"
+  project      = var.project
+
+}
+
+resource "google_project_iam_member" "project" {
+  project = var.project
+  role    = "roles/editor"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+
+}
+
 resource "google_container_cluster" "demo_cluster" {
   project  = var.project
   name     = "cluster-demo"
@@ -15,6 +30,7 @@ resource "google_container_cluster" "demo_cluster" {
   initial_node_count = 1
 
   node_config {
+    service_account = google_service_account.sa.name
 
     labels = {
       env = var.env,
