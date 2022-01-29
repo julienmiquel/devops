@@ -9,8 +9,8 @@ export TF_LOG_PATH="terraform.log"
 
 for i in "${array[@]}"
 do
-	echo " create env for project $i"
-    export TF_LOG_PATH="terraform-$i.log"
+	echo " destroy env for project $i"
+    export TF_LOG_PATH="terraform-destroy-$i.log"
     terraform destroy -auto-approve -var project=$i
 done
 
