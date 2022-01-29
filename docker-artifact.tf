@@ -1,5 +1,6 @@
 resource "google_artifact_registry_repository" "repo-docker-hackathon"     {
   provider = google-beta
+  project = var.project
 
   location = var.region
   repository_id = "repo-docker-hackathon"
@@ -9,6 +10,7 @@ resource "google_artifact_registry_repository" "repo-docker-hackathon"     {
 
 resource "google_service_account" "repo-account" {
   provider = google-beta
+  project = var.project
 
   account_id   = "repo-sa-reader"
   display_name = "Repository Service Account reader"
@@ -16,6 +18,7 @@ resource "google_service_account" "repo-account" {
 
 resource "google_artifact_registry_repository_iam_member" "repo-iam-reader" {
   provider = google-beta
+  project = var.project
 
   location = google_artifact_registry_repository.repo-docker-hackathon.location
   repository = google_artifact_registry_repository.repo-docker-hackathon.name
@@ -25,6 +28,7 @@ resource "google_artifact_registry_repository_iam_member" "repo-iam-reader" {
 
 resource "google_service_account" "repo-account-writer" {
   provider = google-beta
+  project = var.project
 
   account_id   = "repo-sa-writer"
   display_name = "Repository Service Account writer"
@@ -32,6 +36,7 @@ resource "google_service_account" "repo-account-writer" {
 
 resource "google_artifact_registry_repository_iam_member" "repo-iam-writer" {
   provider = google-beta
+  project = var.project
 
   location = google_artifact_registry_repository.repo-docker-hackathon.location
   repository = google_artifact_registry_repository.repo-docker-hackathon.name
