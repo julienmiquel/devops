@@ -13,10 +13,17 @@ resource "google_project_iam_member" "project" {
 
 }
 
+resource "google_compute_network" "default" {
+  project                 = var.project
+  name                    = "default"
+  auto_create_subnetworks = true
+}
+
 resource "google_container_cluster" "demo_cluster" {
   project  = var.project
   name     = "cluster-demo"
   location = var.region
+  network = google_compute_network.default.name
 
   # Enable Alias IPs to allow Windows Server networking.
   ip_allocation_policy {
@@ -29,15 +36,7 @@ resource "google_container_cluster" "demo_cluster" {
   remove_default_node_pool = true
   initial_node_count = 1
 
-  node_config {
-    service_account = google_service_account.sa.email
 
-    labels = {
-      env = var.env,
-      tag = var.tag
-    }
-    tags = ["env", var.env]
-  }
 }
 
 # Small Linux node pool to run some Linux-only Kubernetes Pods.
@@ -53,6 +52,9 @@ resource "google_container_node_pool" "linux_pool" {
     image_type   = "COS_CONTAINERD"
     disk_size_gb      = 100 
     disk_type         = "pd-ssd" 
+
+    service_account = google_service_account.sa.email
+
     labels            = {
       env = var.env,
       tag = var.tag
