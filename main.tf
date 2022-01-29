@@ -30,7 +30,7 @@ resource "google_container_cluster" "demo_cluster" {
   initial_node_count = 1
 
   node_config {
-    service_account = google_service_account.sa.name
+    service_account = google_service_account.sa.email
 
     labels = {
       env = var.env,
