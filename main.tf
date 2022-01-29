@@ -1,15 +1,13 @@
 //Service Account (right to call doc AI)
 resource "google_service_account" "sa" {
   provider = google-beta
+  project = var.project
   account_id   = var.service_account_name
   display_name = "A service account used by devops pipeline"
-  project      = var.project
-
 }
 
 resource "google_project_iam_member" "project" {
   provider = google-beta
-
   project = var.project
   role    = "roles/editor"
   member  = "serviceAccount:${google_service_account.sa.email}"
@@ -19,7 +17,7 @@ resource "google_project_iam_member" "project" {
 resource "google_compute_network" "default" {
   provider = google-beta  
   project                 = var.project
-  name                    = "default"
+  name                    = "default-1"
   auto_create_subnetworks = true
 }
 
@@ -41,7 +39,14 @@ resource "google_container_cluster" "demo_cluster" {
   remove_default_node_pool = true
   initial_node_count = 1
 
-
+  node_config {
+    service_account = google_service_account.sa.email
+    
+    labels            = {
+      env = var.env,
+      tag = var.tag
+    } 
+  }
 }
 
 # Small Linux node pool to run some Linux-only Kubernetes Pods.
@@ -67,10 +72,6 @@ resource "google_container_node_pool" "linux_pool" {
     } 
   }
 
-  management {
-          auto_repair  = false
-          auto_upgrade = false
-  }
 
   upgrade_settings {
           max_surge       = 0
