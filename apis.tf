@@ -8,6 +8,19 @@ locals {
     "containeranalysis.googleapis.com",
     "containerregistry.googleapis.com",
     "containerscanning.googleapis.com",
+    "containerfilesystem.googleapis.com" ,
+    "containerthreatdetection.googleapis.com",
+
+    "anthosconfigmanagement.googleapis.com",
+    "anthosgke.googleapis.com",
+    "anthosidentityservice.googleapis.com",
+    "computescanning.googleapis.com",
+    "buildhistory.googleapis.com",
+    "sourcerepo.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "firestore.googleapis.com",
+    "vpcaccess.googleapis.com",
+    "pubsub.googleapis.com"
 
   ]
 }
