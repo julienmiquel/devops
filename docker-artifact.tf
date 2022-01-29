@@ -14,7 +14,7 @@ resource "google_service_account" "repo-account" {
   display_name = "Repository Service Account reader"
 }
 
-resource "google_artifact_registry_repository_iam_member" "repo-iam" {
+resource "google_artifact_registry_repository_iam_member" "repo-iam-reader" {
   provider = google-beta
 
   location = google_artifact_registry_repository.repo-docker-hackathon.location
@@ -30,7 +30,7 @@ resource "google_service_account" "repo-account-writer" {
   display_name = "Repository Service Account writer"
 }
 
-resource "google_artifact_registry_repository_iam_member" "repo-iam" {
+resource "google_artifact_registry_repository_iam_member" "repo-iam-writer" {
   provider = google-beta
 
   location = google_artifact_registry_repository.repo-docker-hackathon.location
