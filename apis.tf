@@ -20,7 +20,11 @@ locals {
     "servicenetworking.googleapis.com",
     "firestore.googleapis.com",
     "vpcaccess.googleapis.com",
-    "pubsub.googleapis.com"
+    "pubsub.googleapis.com", 
+    "bigquery.googleapis.com",
+    "monitoring.googleapis.com",
+    "cloudtrace.googleapis.com",
+    "cloudtrace.googleapis.com"
 
   ]
 }
