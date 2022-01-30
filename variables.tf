@@ -1,3 +1,14 @@
+# This file has some scaffolding to make sure that names are unique and that
+# a region and zone are selected when you try to create your Terraform resources.
+
+locals {
+  name_suffix = "${random_pet.suffix.id}"
+}
+
+resource "random_pet" "suffix" {
+  length = 2
+}
+
 variable "region" {
   default = "europe-west1"
 }
@@ -15,6 +26,10 @@ variable "env" {
   default = "dev"
 }
 
+variable "namespace" {
+  default = "devops_hackathon"
+}
+
 
 variable "tag" {
   default = "devops_hackathon"
@@ -28,11 +43,12 @@ variable "deletion_protection" {
   default = false
 }
 
-variable "gcs_tf_state" {
-  default = "tf_state_devops_hackathon"  
-}
 
 provider "google" {
+  region = var.region
+}
+
+provider "google-beta" {
   region = var.region
 }
 
