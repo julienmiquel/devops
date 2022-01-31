@@ -19,12 +19,10 @@ from . import sre_recipe_load_tasks
 USER_FACING_LOCUST_USER_CLASSES = {
     "basic": [
         basic_locust_tasks.PurchasingUser,
-        basic_locust_tasks.WishlistUser,
         basic_locust_tasks.BrowsingUser,
     ],
     "step": [
         step_locust_tasks.PurchasingUser,
-        step_locust_tasks.WishlistUser,
         step_locust_tasks.BrowsingUser,
     ]
 }

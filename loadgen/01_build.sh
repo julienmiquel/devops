@@ -17,6 +17,7 @@ do
     export TF_LOG_PATH="terraform-$i.log"
     gcloud config set project  $i
     gcloud beta compute routes create internet --project=$i --network=default --priority=1000 --destination-range=0.0.0.0/0 --next-hop-gateway=default-internet-gateway
+    terraform destroy -auto-approve -var project_id=$i -var external_ip=0.0.0.0
     terraform apply -auto-approve -var project_id=$i -var external_ip=0.0.0.0
 done
 
