@@ -27,6 +27,12 @@ resource "random_shuffle" "zone" {
   seed = var.project_id
 }
 
+resource "google_service_account" "sa-loadgenerator" {
+  project = var.project_id
+  account_id   = "sa-loadgenerator"
+  display_name = "A service account used by loadgenerator pipeline"
+}
+
 # First we create the cluster. If you're wondering where all the sizing details
 # are, they're below in the `google_container_node_pool` resource. We'll get
 # back to that in a minute.
@@ -66,8 +72,11 @@ resource "google_container_cluster" "gke_loadgen" {
   #
   # Many of the paramaters below are self-explanatory so I'll only call out
   # interesting things.
+
   node_pool {
     node_config {
+      service_account = google_service_account.sa-loadgenerator.email
+
       machine_type = "n1-standard-4"
 
       oauth_scopes = [
