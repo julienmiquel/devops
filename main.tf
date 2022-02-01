@@ -17,8 +17,13 @@ resource "google_project_iam_member" "project" {
 resource "google_compute_network" "default" {
   provider = google-beta  
   project                 = var.project
-  name                    = "default-1"
+  name                    = "default-vpc"
   auto_create_subnetworks = true
+
+  lifecycle { 
+     ignore_changes  = all
+     prevent_destroy = true 
+   } 
 }
 
 resource "google_container_cluster" "demo_cluster" {
@@ -27,6 +32,12 @@ resource "google_container_cluster" "demo_cluster" {
   name     = "cluster-demo"
   location = var.region
   network = google_compute_network.default.name
+
+  depends_on = [
+    google_project_service.container,
+    google_compute_network.default,
+    google_service_account.sa
+  ]
 
   # Enable Alias IPs to allow Windows Server networking.
   ip_allocation_policy {
@@ -52,8 +63,8 @@ resource "google_container_cluster" "demo_cluster" {
 # Small Linux node pool to run some Linux-only Kubernetes Pods.
 resource "google_container_node_pool" "linux_pool" {
   provider = google-beta    
+  project                 = var.project
   name               = "linux-pool"
-  project            = google_container_cluster.demo_cluster.project
   cluster            = google_container_cluster.demo_cluster.name
   location           = google_container_cluster.demo_cluster.location
   node_count = 1
@@ -77,4 +88,13 @@ resource "google_container_node_pool" "linux_pool" {
           max_surge       = 0
           max_unavailable = 0 
   }
+}
+
+
+resource "google_project_service" "container" {
+  provider           = google-beta    
+  project            = var.project
+  service            = "container.googleapis.com"
+  disable_on_destroy = false
+  disable_dependent_services=false 
 }

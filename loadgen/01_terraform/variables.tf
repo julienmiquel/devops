@@ -26,3 +26,9 @@ variable "project_id" {
   type        = string
   description = "The project id that was created by Cloud Operations Sandbox. Can be revealed by running \"gcloud config get-value project\" in the Google Cloud CLI."
 }
+
+variable "image" {
+  type        = string
+  description = "Docker image path to install in the cluster"
+}
+

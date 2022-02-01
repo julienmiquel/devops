@@ -50,7 +50,7 @@ def getalldonation(l):
 
 @task
 def getonedonation(l):
-    l.client.get("/donations/DONATION_ID?=" + random.choice(donationsId))
+    l.client.get("/donations/DONATION_ID?=" + str(random.choice(donationsId)))
 
 @task
 def makedonation(l):

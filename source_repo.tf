@@ -15,12 +15,10 @@ resource "google_pubsub_topic" "topic" {
 
 
 resource "google_sourcerepo_repository" "sources-repo" {
-  depends_on = [
-    google_project_service.enabled_service["sourcerepo.googleapis.com"]
-  ]
+
   provider = google-beta
   project = var.project  
-  name = "sources-repository-hackathon-cagip"
+  name = "sources-repository-hackathon"
   pubsub_configs {
       topic = google_pubsub_topic.topic.id
       message_format = "JSON"

@@ -10,6 +10,9 @@ array=( cloud-ops-sandbox-2234836724 )
 export TF_LOG="INFO"
 export TF_LOG_PATH="terraform.log"
 
+image="${REPO}/${REPO_PREFIX}/loadgenerator:$TAG"
+echo $image
+
 cd 01_terraform/
 for i in "${array[@]}"
 do
@@ -17,8 +20,8 @@ do
     export TF_LOG_PATH="terraform-$i.log"
     gcloud config set project  $i
     gcloud beta compute routes create internet --project=$i --network=default --priority=1000 --destination-range=0.0.0.0/0 --next-hop-gateway=default-internet-gateway
-    terraform destroy -auto-approve -var project_id=$i -var external_ip=0.0.0.0
-    terraform apply -auto-approve -var project_id=$i -var external_ip=0.0.0.0
+    terraform destroy -auto-approve -var project_id=$i -var external_ip=0.0.0.0 -var image=$image
+    terraform apply -auto-approve -var project_id=$i -var external_ip=0.0.0.0 -var image=$image
 done
 
 

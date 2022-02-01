@@ -68,7 +68,7 @@ resource "google_container_cluster" "gke_loadgen" {
   # interesting things.
   node_pool {
     node_config {
-      machine_type = "n1-standard-2"
+      machine_type = "n1-standard-4"
 
       oauth_scopes = [
         "https://www.googleapis.com/auth/cloud-platform"
@@ -80,11 +80,11 @@ resource "google_container_cluster" "gke_loadgen" {
       }
     }
 
-    initial_node_count = 1
+    initial_node_count = 20
 
     autoscaling {
       min_node_count = 1
-      max_node_count = 10
+      max_node_count = 30
     }
 
     management {
@@ -109,6 +109,8 @@ resource "null_resource" "current_project" {
 
 # Setting kubectl context to currently deployed loadgenerator GKE cluster
 resource "null_resource" "set_gke_context" {
+  for_each = toset(local.locust_instance)
+
   provisioner "local-exec" {
     command = "gcloud container clusters get-credentials loadgenerator --zone ${element(random_shuffle.zone.result, 0)} --project ${var.project_id}"
   }
@@ -121,16 +123,61 @@ resource "null_resource" "set_gke_context" {
 
 # Populate the ConfigMap with environment variables
 resource "null_resource" "set_env_vars" {
+  
   provisioner "local-exec" {
-    command = "kubectl create configmap address-config --from-literal=FRONTEND_ADDR=http://${var.external_ip}"
+    command = "echo kubectl create configmap address-config --from-literal=FRONTEND_ADDR=http://${var.external_ip}"
+    
   }
   depends_on = [null_resource.set_gke_context]
 }
 
+locals {
+    locust_instance =  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+}
+
 # Deploy loadgenerator into GKE cluster 
 resource "null_resource" "deploy_services" {
+  for_each = toset(local.locust_instance)
+  
   provisioner "local-exec" {
-    command = "kubectl apply -f ${path.module}/loadgenerator-manifests/loadgenerator.yaml"
+    command = "echo variables: $instance - $image"
+    environment = {
+        image = var.image
+        instance = each.key
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "cat ${path.module}/loadgenerator-manifests/loadgenerator.template.yaml > ${path.module}/loadgenerator-manifests/loadgenerator.tmp.${each.key}.yaml"
+  }
+
+  provisioner "local-exec" {
+    command = "sed \"s|{instance}|${each.key}|\" ${path.module}/loadgenerator-manifests/loadgenerator.tmp.${each.key}.yaml > ${path.module}/loadgenerator-manifests/loadgenerator.tmp2.${each.key}.yaml"
+    environment = {
+        instance = each.key
+    }
+  }  
+
+  provisioner "local-exec" {
+    
+    command = "sed \"s|{image}|${var.image}|\"  ${path.module}/loadgenerator-manifests/loadgenerator.tmp2.${each.key}.yaml   > ${path.module}/loadgenerator-manifests/loadgenerator.${each.key}.yaml"
+      environment = {
+        image = var.image
+    }
+  }
+   
+  provisioner "local-exec" {
+    command = "rm ${path.module}/loadgenerator-manifests/loadgenerator.tmp*${each.key}.yaml"
+  }
+
+
+
+  provisioner "local-exec" {
+    command = "kubectl apply -f ${path.module}/loadgenerator-manifests/loadgenerator.${each.key}.yaml"
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl wait --for=condition=available --timeout=600s deployment/loadgenerator-${each.key}"
   }
 
   depends_on = [
@@ -138,13 +185,17 @@ resource "null_resource" "deploy_services" {
   ]
 }
 
-# We wait for the load generator to become available on kubernetes
-resource "null_resource" "delay" {
+
+
+resource "null_resource" "output" {
+  triggers  =  { always_run = "${timestamp()}" }
+
   provisioner "local-exec" {
-    command = "kubectl wait --for=condition=available --timeout=600s deployment/loadgenerator"
+    command = "kubectl get services --all-namespaces -o json | jq -r '.items[] | { name: .metadata.name, ns: .metadata.namespace, ip: .status.loadBalancer?|.ingress[]?|.ip  }' > ${path.module}/output.txt"
   }
 
-  triggers = {
-    "before" = null_resource.deploy_services.id
-  }
+  depends_on = [
+    null_resource.deploy_services
+  ]
+
 }
