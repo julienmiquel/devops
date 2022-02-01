@@ -1,19 +1,4 @@
 
-resource "google_service_account" "test_account" {
-  provider = google-beta
-  project = var.project    
-  account_id   = "test-build-account"
-  display_name = "Test/build Service Account"
-}
-
-resource "google_pubsub_topic" "topic" {
-  provider = google-beta
-  project = var.project    
-  name     = "topic-repository-hackathon-cagip"
-}
-
-
-
 resource "google_sourcerepo_repository" "sources-repo" {
 
   provider = google-beta
