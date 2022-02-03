@@ -17,11 +17,15 @@
 import random
 from locust import task, HttpUser, TaskSet
 
+#{"BTC":38509,"ETH":2683,"EUR":1.12,"LTC":109,"USD":1,"XMR":145}
 
 currencies = [
-    '€',
-    '$',
-    '£'
+    'BTC',
+    'ETH',
+    'EUR',
+    'LTC',
+    'USD',
+    'XMR'
     ]
 
 donateurs = [
@@ -41,28 +45,32 @@ donationsId = [
 # Define specific frontend actions.
 
 @task
-def index(l):
-    l.client.get("/")
+def statistics(l):
+    l.client.get("/statistics")
 
 @task
-def getalldonation(l):
-    l.client.post("/donations")
+def getalldonations(l):
+    l.client.get("/donations")
 
 @task
 def getonedonation(l):
-    l.client.get("/donations/DONATION_ID?=" + str(random.choice(donationsId)))
+    l.client.get("/donations/61fa5d2d672226469b8c1400" )
 
 @task
 def makedonation(l):
-    donateur = random.choice(donateurs)
+    donateur = random.choice(donateurs) + "-" + str(random.randint(0, 10000))
     currency = random.choice(currencies)
 
-    l.client.post("/donation", {
+    headers = {'content-type': 'application/json'}
+
+    response = l.client.post("/donation", {
         'donatorName': donateur,
-        'amount': random.choice([1,2,3,4,5,10]),
+        'amount': random.choice([1,2,3,4,5,10]) * 100,
         "moneyType": currency
-        }
-        )
+        }, 
+        headers=headers)
+    print("result\n")
+    print(response)
 
 
 # LocustIO TaskSet classes defining detailed user behaviors.
@@ -70,23 +78,27 @@ def makedonation(l):
 class PurchasingBehavior(TaskSet):
 
     def on_start(self):
-        index(self)
+        print("visit index page")
+        #index(self) Not needed for API
+        statistics(self)
 
-    tasks = {index: 1,
+    tasks = { statistics: 1,
         makedonation: 2,
-        getalldonation: 2,
-        getonedonation: 1
+        getalldonations: 1,
         }
 
 
 class BrowsingBehavior(TaskSet):
 
     def on_start(self):
-        index(self)
+        print("visit index page")
+        #index(self) Not needed for API
+        statistics(self)
 
-    tasks = {index: 5,
+    tasks = {
         makedonation: 10,
-        getalldonation: 1}
+        getalldonations: 1,
+        statistics: 10 }
 
 # LocustIO Locust classes defining general user scenarios.
 

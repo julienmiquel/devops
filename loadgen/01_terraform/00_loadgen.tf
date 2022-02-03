@@ -33,6 +33,14 @@ resource "google_service_account" "sa-loadgenerator" {
   display_name = "A service account used by loadgenerator pipeline"
 }
 
+
+resource "google_project_iam_member" "project" {
+  project = var.project_id
+  role    = "roles/editor"
+  member  = "serviceAccount:${google_service_account.sa-loadgenerator.email}"
+}
+
+
 # First we create the cluster. If you're wondering where all the sizing details
 # are, they're below in the `google_container_node_pool` resource. We'll get
 # back to that in a minute.
@@ -134,14 +142,14 @@ resource "null_resource" "set_gke_context" {
 resource "null_resource" "set_env_vars" {
   
   provisioner "local-exec" {
-    command = "echo kubectl create configmap address-config --from-literal=FRONTEND_ADDR=http://${var.external_ip}"
+    command = "kubectl create configmap address-config --from-literal=FRONTEND_ADDR=http://${var.external_ip}"
     
   }
   depends_on = [null_resource.set_gke_context]
 }
 
 locals {
-    locust_instance =  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+    locust_instance =  ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
 }
 
 # Deploy loadgenerator into GKE cluster 

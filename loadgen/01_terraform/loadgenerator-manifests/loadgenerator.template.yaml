@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: locust-main-{instance}
-          image:     {image}
+          image: {image}
           imagePullPolicy: Always
           env:
             - name: LOCUST_MODE

@@ -18,9 +18,12 @@ import random
 from locust import task, between, HttpUser
 
 currencies = [
-    '€',
-    '$',
-    '£'
+    'BTC',
+    'ETH',
+    'EUR',
+    'LTC',
+    'USD',
+    'XMR'
     ]
 
 donateurs = [
@@ -46,7 +49,8 @@ class BasicHomePageViewingUser(HttpUser):
 
     @task
     def visit_home_page(self):
-        self.client.get("/")
+        print("To be completed during the hackathon ")
+        #self.client.get("/")
 
 
 class BasicPurchasingUser(HttpUser):
@@ -64,10 +68,11 @@ class BasicPurchasingUser(HttpUser):
     @task
     def buy_random_product_and_checkout(self):
         # visit home page
-        self.client.get("/")
+        print("To be completed during the hackathon ")
+        #self.client.get("/")
 
 
-        donateur = random.choice(donateurs)
+        donateur = random.choice(donateurs) + "-sre-test-" + str(random.randint(0, 10000))
         currency = random.choice(currencies)
 
         res = self.client.post("/donation", {

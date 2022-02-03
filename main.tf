@@ -14,6 +14,13 @@ resource "google_project_iam_member" "project" {
 
 }
 
+resource "google_project_iam_member" "sa-container-admin" {
+  provider = google-beta
+  project = var.project
+  role    = "roles/container.admin"
+  member  = "serviceAccount:${google_service_account.sa.email}"
+}
+
 resource "google_compute_network" "default" {
   provider = google-beta  
   project                 = var.project

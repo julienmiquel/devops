@@ -20,9 +20,12 @@ from locust import task, HttpUser, TaskSet, LoadTestShape
 
 
 currencies = [
-    '€',
-    '$',
-    '£'
+    'BTC',
+    'ETH',
+    'EUR',
+    'LTC',
+    'USD',
+    'XMR'
     ]
 
 donateurs = [
@@ -32,21 +35,12 @@ donateurs = [
     "Sarah Conor",
 ]
 
-donationsId = [
-    1,
-    2,
-    3,
-    4,
-]
+
 
 # Define specific frontend actions.
 @task
-def index(l):
-    l.client.get("/")
-
-@task
-def postalldonations(l):
-    l.client.post("/donations")
+def statistics(l):
+    l.client.get("/statistics")
 
 @task
 def getalldonations(l):
@@ -54,28 +48,33 @@ def getalldonations(l):
 
 @task
 def getonedonation(l):
-    l.client.get("/donations/DONATION_ID?=" + random.choice(donationsId))
+    l.client.get("/donations/61fa5d2d672226469b8c1400" )
 
 @task
 def makedonation(l):
-    donateur = random.choice(donateurs)
+    donateur = random.choice(donateurs) + "-" + str(random.randint(0, 10000))
     currency = random.choice(currencies)
 
-    l.client.post("/donation", {
+    headers = {'content-type': 'application/json'}
+
+    response = l.client.post("/donation", {
         'donatorName': donateur,
         'amount': random.choice([1,2,3,4,5,10]) * 100,
         "moneyType": currency
-        }
-        )
+        }, 
+        headers=headers)
+    print("result\n")
+    print(response)
+        
 
 @task
 def makedonationtest(l):
 
     l.client.post("/donation", 
     {
-        'donatorName': "Test user",
+        'donatorName': "Test user"+ "-" + str(random.randint(0, 10000)),
         'amount': 9999,
-        "moneyType": "€"
+        "moneyType": "EUR"
         }
     )
 
@@ -83,26 +82,21 @@ def makedonationtest(l):
 
 class PurchasingBehavior(TaskSet):
 
-    def on_start(self):
-        index(self)
 
-    tasks = {index: 1,
+
+    tasks = {
         makedonationtest: 1,
         getalldonations: 1,
         makedonation: 5,
-        postalldonations: 2,
-        getonedonation: 1
         }
 
 
 
 class BrowsingDonation(TaskSet):
 
-    def on_start(self):
-        index(self)
 
     tasks = {
-        index: 5,
+        getonedonation : 1,
         getalldonations: 10
         }
 
