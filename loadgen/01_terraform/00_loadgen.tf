@@ -41,6 +41,17 @@ resource "google_project_iam_member" "project" {
 }
 
 
+resource "google_compute_network" "default" {
+  project = var.project_id
+  name                    = "default"
+  auto_create_subnetworks = true
+
+  lifecycle { 
+     ignore_changes  = all
+     prevent_destroy = true 
+   } 
+}
+
 # First we create the cluster. If you're wondering where all the sizing details
 # are, they're below in the `google_container_node_pool` resource. We'll get
 # back to that in a minute.
@@ -59,6 +70,7 @@ resource "google_container_cluster" "gke_loadgen" {
   name = "loadgenerator"
 
   project = var.project_id
+  depends_on = [google_compute_network.default]    
 
   # Set the zone by grabbing the result of the random_shuffle above. It
   # returns a list so we have to pull the first element off. If you're looking
@@ -149,7 +161,8 @@ resource "null_resource" "set_env_vars" {
 }
 
 locals {
-    locust_instance =  ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
+#    locust_instance =  ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
+    locust_instance =  ["000"]
 }
 
 # Deploy loadgenerator into GKE cluster 
